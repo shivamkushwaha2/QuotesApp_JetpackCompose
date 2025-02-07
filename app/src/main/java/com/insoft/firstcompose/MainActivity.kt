@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.insoft.firstcompose.DataManager.loadNotesFromJson
+import com.insoft.firstcompose.app.MyApp
 import com.insoft.firstcompose.models.QuotesModel
 import com.insoft.firstcompose.screens.QuoteDetailItem
 import com.insoft.firstcompose.screens.QuoteListItem
@@ -50,78 +51,23 @@ class MainActivity : ComponentActivity() {
             loadNotesFromJson(applicationContext)
         }
         setContent {
-            AppNavigation()
+           MyApp()
         }
     }
 }
 
-@Composable
-fun AppNavigation(modifier: Modifier = Modifier) {
-    val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "ShowQuoteList") {
-        composable("ShowQuoteList") {
-            ShowQuoteList(modifier, navController)
-        }
-        composable("QuoteDetailItem/{text}/{author}") { it: NavBackStackEntry ->
-            val text = it.arguments?.getString("text")
-            val author = it.arguments?.getString("author")
-            QuoteDetailItem(text, author)
-        }
-    }
-}
+//@Composable
+//fun AppNavigation(modifier: Modifier = Modifier) {
+//    val navController = rememberNavController()
+//    NavHost(navController = navController, startDestination = "ShowQuoteList") {
+//        composable("ShowQuoteList") {
+//            ShowQuoteList(modifier, navController)
+//        }
+//        composable("QuoteDetailItem/{text}/{author}") { it: NavBackStackEntry ->
+//            val text = it.arguments?.getString("text")
+//            val author = it.arguments?.getString("author")
+//            QuoteDetailItem(text, author)
+//        }
+//    }
+//}
 
-
-@Composable
-fun ShowQuoteList(modifier: Modifier, navController: NavHostController) {
-        Column(
-            modifier = Modifier
-                .windowInsetsPadding(WindowInsets.statusBars)
-        ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                text = "Quotes App",
-                style = TextStyle(
-                    textAlign = TextAlign.Center,
-                    color = Color.Black,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Thin
-                )
-            )
-            Quotes(modifier, navController)
-        }
-
-
-}
-
-@Composable
-private fun Quotes(
-    modifier: Modifier,
-    navController: NavHostController
-) {
-    val data = DataManager.quotes
-
-    if (DataManager.isloading.value && !DataManager.error.value) {
-        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else if (!DataManager.isloading.value && !DataManager.error.value) {
-        LazyColumn(modifier = Modifier.padding(bottom = 56.dp), content = {
-            items(data) { it: QuotesModel ->
-                QuoteListItem(it, onItemClick = {
-                    navController.navigate("QuoteDetailItem/${it.text}/${it.author}")
-                })
-            }
-        })
-    } else {
-        Box(
-            modifier
-                .fillMaxSize(1f)
-                .background(Color.White),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "Something Went Wrong")
-        }
-    }
-}
